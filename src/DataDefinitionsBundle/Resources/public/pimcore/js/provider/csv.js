@@ -15,6 +15,7 @@ pimcore.registerNS('pimcore.plugin.datadefinitions.provider.csv');
 
 pimcore.plugin.datadefinitions.provider.csv = Class.create(pimcore.plugin.datadefinitions.provider.abstractprovider, {
     getItems: function () {
+        console.log('escape: ', this.data['escape'], ' ', typeof this.data['escape'], this.data.escape);
         return [{
             xtype: 'textfield',
             name: 'delimiter',
@@ -27,6 +28,12 @@ pimcore.plugin.datadefinitions.provider.csv = Class.create(pimcore.plugin.datade
             fieldLabel: t('data_definitions_csv_enclosure'),
             anchor: '100%',
             value: this.data['enclosure'] ? this.data.enclosure : '"'
+        }, {
+            xtype: 'textfield',
+            name: 'escape',
+            fieldLabel: t('data_definitions_csv_escape'),
+            anchor: '100%',
+            value: typeof this.data['escape'] !== "undefined" ? this.data.escape ?? '' : '\\'
         }, {
             xtype: 'textarea',
             fieldLabel: t('data_definitions_csv_example'),

@@ -41,18 +41,23 @@ class CsvProvider extends AbstractFileProvider implements ImportProviderInterfac
 
     public function getColumns(array $configuration): array
     {
+        var_dump($configuration);die;
         $csvHeaders = (string)$configuration['csvHeaders'];
         $csvExample = $configuration['csvExample'];
         $delimiter = $configuration['delimiter'];
         $enclosure = $configuration['enclosure'];
+        $escape = $configuration['escape'];
 
         $returnHeaders = [];
         $rows = str_getcsv($csvHeaders ?: $csvExample, "\n"); //parse the rows
 
         if (count($rows) > 0) {
             $headerRow = $rows[0];
-
-            $headers = str_getcsv($headerRow, $delimiter, $enclosure ?: chr(8));
+            if ($escape !== null) {
+                $headers = str_getcsv($headerRow, $delimiter, $enclosure ?: chr(8), $escape);
+            } else {
+                $headers = str_getcsv($headerRow, $delimiter, $enclosure ?: chr(8));
+            }
 
             if (count($headers) > 0) {
                 //First line are the headers
@@ -82,6 +87,7 @@ class CsvProvider extends AbstractFileProvider implements ImportProviderInterfac
         $csvHeaders = $configuration['csvHeaders'];
         $delimiter = $configuration['delimiter'];
         $enclosure = $configuration['enclosure'];
+        $escape = $configuration['escape'];
 
         $offset = $params['offset'] ?? null;
         $limit = $params['limit'] ?? null;
@@ -91,6 +97,9 @@ class CsvProvider extends AbstractFileProvider implements ImportProviderInterfac
         $csv = Reader::createFromPath($file, 'r');
         $csv->setDelimiter($delimiter);
         $csv->setEnclosure($enclosure);
+        if ($escape !== null) {
+            $csv->setEscape($escape);
+        }
 
         if ($csvHeaders) {
             $headers = array_map(function (FromColumn $column) {
@@ -139,6 +148,9 @@ class CsvProvider extends AbstractFileProvider implements ImportProviderInterfac
         $writer = Writer::createFromPath($file, 'w+');
         $writer->setDelimiter($configuration['delimiter']);
         $writer->setEnclosure($configuration['enclosure']);
+        if ($configuration['escape'] !== null) {
+            $writer->setEscape($configuration['escape']);
+        }
         $writer->insertOne($headers);
         $writer->insertAll($this->exportData);
     }
@@ -161,6 +173,9 @@ class CsvProvider extends AbstractFileProvider implements ImportProviderInterfac
         $writer = Writer::createFromStream($stream);
         $writer->setDelimiter($configuration['delimiter']);
         $writer->setEnclosure($configuration['enclosure']);
+        if ($configuration['escape'] !== null) {
+            $writer->setEscape($configuration['escape']);
+        }
         $writer->insertOne($headers);
         $writer->insertAll($this->exportData);
 
